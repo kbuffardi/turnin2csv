@@ -3,9 +3,25 @@
 
 import sys
 import re
+import os
 
 ###############################################################################
+# PSEUDO-CONSTANTS
+
+# penalty (value subtracted) for each day late. Change to calculate grade
+# according to your late policy or change to 0 to disregard from calculation 
+def LATE_PENALTY_PER_DAY():
+  return 20
+
+# should the script be quiet (no standard output, only file out)
+def QUIET():
+  return False
+###############################################################################
 # FUNCTIONS
+def stdout(message):
+  if not QUIET:
+    print message
+
 def getElementsByType(tag,source):
   #non-greedy search for all tags of that type
   regex = "<" + tag + ">" + ".*?" + "</" + tag + ">"
@@ -26,24 +42,36 @@ def getInnerHTML(element):
 def elementType(tag):
   ex = "<.*?>" #minimal (non-greedy) tag
   tag = re.search(ex,tag)
+  #parameters without a tag return empty string
   if tag:
     tag = tag.group()
   else:
     return ""
+  # #remove first and last character and whitespace
   if tag.startswith("<") and tag.endswith(">"):
-    tag = tag[1:-1].strip() #remove first and last character and whitespace
+    tag = tag[1:-1].strip() 
     return tag.split()[0]
   else:
     return ""
 
+def newFile(name):
+  pwd = os.getcwd()
+  suffix = ""
+  while os.path.isfile(pwd+name+suffix):
+    if suffix == "":
+      suffix = -1
+    else:
+      suffix = int(suffix)-1
+  return open(pwd+name+suffix)
+
 ###############################################################################
 # Get file name and open it
 if len(sys.argv) != 2:
-  print "Usage:\n python turnin2csv.py <filename.html>"
+  stdout("Usage:\n python turnin2csv.py <filename.html>")
   sys.exit()
 
 htmlfile = sys.argv[1]
-print "Processing ", htmlfile, "..."
+stdout("Processing "+ htmlfile + "...")
 
 with open(htmlfile, 'r') as infile:
   html = infile.read()
@@ -54,7 +82,7 @@ with open(htmlfile, 'r') as infile:
     rows = getElementsByType("tr",table[0])
     
     if len(rows) > 1:
-      print len(rows)-1, " students found"
+      stdout(str(len(rows)-1) + " students found")
       for i in range(1,len(rows)-1):
         student = getElement(rows[i])
         cells = getElementsByType("td",getInnerHTML(student))
@@ -62,7 +90,7 @@ with open(htmlfile, 'r') as infile:
         #columns: name, username, t(1), ...t(n), late, chars, lines
         tests = len(cells) - 5
         if tests < 1:
-          print "No test results available for student. Quitting."
+          stdout("No test results available for student. Quitting.")
           sys.exit()
         else:
           name = getInnerHTML(cells[0])
@@ -76,13 +104,7 @@ with open(htmlfile, 'r') as infile:
             outcome = getInnerHTML(result)
             if outcome == "1":
               passed += 1
-          print name, "passed", passed, "of", tests
+          stdout(name + " passed " + str(passed) + " of " + str(tests))
       
   else:
-    print "No results table found in html"
-
-  
-  
-
-
-
+    stdout("No results table found in html")
