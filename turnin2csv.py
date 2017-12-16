@@ -25,7 +25,11 @@ def getInnerHTML(element):
 
 def elementType(tag):
   ex = "<.*?>" #minimal (non-greedy) tag
-  tag = re.search(ex,tag).group()
+  tag = re.search(ex,tag)
+  if tag:
+    tag = tag.group()
+  else:
+    return ""
   if tag.startswith("<") and tag.endswith(">"):
     tag = tag[1:-1].strip() #remove first and last character and whitespace
     return tag.split()[0]
@@ -49,28 +53,30 @@ with open(htmlfile, 'r') as infile:
   if len(table) == 1:
     rows = getElementsByType("tr",table[0])
     
-    if rows > 1:
+    if len(rows) > 1:
       print len(rows)-1, " students found"
-      student = getElement(rows[11])
-      cells = getElementsByType("td",getInnerHTML(student))
+      for i in range(1,len(rows)-1):
+        student = getElement(rows[i])
+        cells = getElementsByType("td",getInnerHTML(student))
 
-      #columns: name, username, t(1), ...t(n), late, chars, lines
-      tests = len(cells) - 5
-      if tests < 1:
-        print "No test results available for student. Quitting."
-        sys.exit()
-      else:
-        name = getInnerHTML(getInnerHTML(cells[0]))
-        username = cells[1]
-        late = cells[tests+2]
-        results = cells[2:(tests+2)]
-        passed = 0
-        for result in results:
-          outcome = getInnerHTML(result)
-          print outcome
-          if outcome == "1":
-            passed += 1
-        print name, "passed", passed, "of", tests
+        #columns: name, username, t(1), ...t(n), late, chars, lines
+        tests = len(cells) - 5
+        if tests < 1:
+          print "No test results available for student. Quitting."
+          sys.exit()
+        else:
+          name = getInnerHTML(cells[0])
+          if elementType(name) == "a": #get name from within link
+            name = getInnerHTML(name) 
+          username = cells[1]
+          late = cells[tests+2]
+          results = cells[2:(tests+2)]
+          passed = 0
+          for result in results:
+            outcome = getInnerHTML(result)
+            if outcome == "1":
+              passed += 1
+          print name, "passed", passed, "of", tests
       
   else:
     print "No results table found in html"
