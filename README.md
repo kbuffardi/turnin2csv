@@ -17,4 +17,6 @@ Using **python 2.7**
 
 Each test is calculated as equal value and only a passed test earns points. In other words, if a student passes 3 of 4 tests, they are graded 75%.
 
+Each test is calculated as equal value and only a passed test earns points. In other words, if a student passes 3 of 4 tests, they are graded 75%.
+
 By default, a penalty of 20 points per day late is imposed when calculating the grades. If you want to change that value, edit the script and change the value that `LATE_PENALTY_PER_DAY()` returns.
