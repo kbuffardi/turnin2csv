@@ -2,6 +2,8 @@
 
 This script parses an html results page from the instructor's view of a [Turnin](https://turnin.ecst.csuchico.edu) assignment and creates a comma separated value (.csv) file with students' calculated grades.
 
+Using **python 2.7**
+
 ## Getting Started
 
 1. Log into Turnin as an instructor and 
@@ -12,5 +14,7 @@ This script parses an html results page from the instructor's view of a [Turnin]
 6. Run the script:
 
 `python turnin2csv <filename.html>`
+
+Each test is calculated as equal value and only a passed test earns points. In other words, if a student passes 3 of 4 tests, they are graded 75%.
 
 By default, a penalty of 20 points per day late is imposed when calculating the grades. If you want to change that value, edit the script and change the value that `LATE_PENALTY_PER_DAY()` returns.
