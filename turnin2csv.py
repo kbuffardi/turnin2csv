@@ -102,7 +102,9 @@ with open(htmlfile, 'r') as infile:
           if elementType(name) == "a": #get name from within link
             name = getInnerHTML(name) 
           username = getInnerHTML(cells[1])
-          late = cells[tests+2]
+          late = getInnerHTML(cells[tests+2])
+          if late == '-':
+            late = 0
           results = cells[2:(tests+2)]
           passed = 0
           for result in results:
@@ -110,7 +112,8 @@ with open(htmlfile, 'r') as infile:
             if outcome == "1":
               passed += 1
           stdout(name + " passed " + str(passed) + " of " + str(tests))
-          csv.write(username + "," + str(float(passed)/tests*100-LATE_PENALTY_PER_DAY()*late) + "\n")
+          grade_str = str(float(passed)/tests*100-(LATE_PENALTY_PER_DAY()*int(late)))
+          csv.write(username + "," + grade_str + "\n")
         else:
           stdout("No test results available for student. Quitting.")
           sys.exit()
