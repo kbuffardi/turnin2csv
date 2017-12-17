@@ -110,7 +110,7 @@ with open(htmlfile, 'r') as infile:
             if outcome == "1":
               passed += 1
           stdout(name + " passed " + str(passed) + " of " + str(tests))
-          csv.write(username + "," + str(float(passed)/tests*100) + "\n")
+          csv.write(username + "," + str(float(passed)/tests*100-LATE_PENALTY_PER_DAY()*late) + "\n")
         else:
           stdout("No test results available for student. Quitting.")
           sys.exit()
