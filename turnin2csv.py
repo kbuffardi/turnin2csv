@@ -19,7 +19,7 @@ def QUIET():
 ###############################################################################
 # FUNCTIONS
 def stdout(message):
-  if not QUIET:
+  if not QUIET():
     print message
 
 def getElementsByType(tag,source):
@@ -54,15 +54,18 @@ def elementType(tag):
   else:
     return ""
 
-def newFile(name):
+def newCSVFile(name):
   pwd = os.getcwd()
+  file = pwd+"/"+name
   suffix = ""
-  while os.path.isfile(pwd+name+suffix):
+  while os.path.isfile(file+str(suffix)+".csv"):
     if suffix == "":
       suffix = -1
     else:
       suffix = int(suffix)-1
-  return open(pwd+name+suffix)
+  file = file + str(suffix) + ".csv"
+  stdout("Creating file " + file)
+  return open(file, "a") #opened file for appending
 
 ###############################################################################
 # Get file name and open it
@@ -83,20 +86,19 @@ with open(htmlfile, 'r') as infile:
     
     if len(rows) > 1:
       stdout(str(len(rows)-1) + " students found")
+      csv = newCSVFile(htmlfile)
       for i in range(1,len(rows)-1):
         student = getElement(rows[i])
         cells = getElementsByType("td",getInnerHTML(student))
 
         #columns: name, username, t(1), ...t(n), late, chars, lines
         tests = len(cells) - 5
-        if tests < 1:
-          stdout("No test results available for student. Quitting.")
-          sys.exit()
-        else:
+        
+        if tests >= 1:
           name = getInnerHTML(cells[0])
           if elementType(name) == "a": #get name from within link
             name = getInnerHTML(name) 
-          username = cells[1]
+          username = getInnerHTML(cells[1])
           late = cells[tests+2]
           results = cells[2:(tests+2)]
           passed = 0
@@ -105,6 +107,14 @@ with open(htmlfile, 'r') as infile:
             if outcome == "1":
               passed += 1
           stdout(name + " passed " + str(passed) + " of " + str(tests))
-      
+          csv.write(username + "," + str(float(passed)/tests*100) + "\n")
+        else:
+          stdout("No test results available for student. Quitting.")
+          sys.exit()
+      csv.close()
+      stdout("Done reading results. Saved to CSV." )
+    else:
+      stdout("No student results found. Quitting.")
+      sys.exit() 
   else:
     stdout("No results table found in html")
