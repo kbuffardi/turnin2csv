@@ -85,12 +85,12 @@ with open(htmlfile, 'r') as infile:
     rows = getElementsByType("tr",table[0])
     
     if len(rows) > 1:
-      stdout(str(len(rows)-1) + " students found")
+      stdout(str(len(rows)) + " students found")
       column_name = os.path.splitext(htmlfile)[0]
       csv = newCSVFile(column_name)
       #write row for column headers
       csv.write("Username,"+column_name+"\n")
-      for i in range(1,len(rows)-1):
+      for i in range(1,len(rows)):
         student = getElement(rows[i])
         cells = getElementsByType("td",getInnerHTML(student))
 
